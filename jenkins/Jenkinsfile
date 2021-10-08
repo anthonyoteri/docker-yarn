@@ -1,0 +1,33 @@
+pipeline {
+    agent {
+        kubernetes {
+            yamlFile 'jenkins/podTemplate.yaml'
+            defaultContainer 'docker'
+        }
+    }
+
+    options {
+        ansiColor('xterm')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/anthonyoteri/docker-yarn'
+            }
+        }
+       
+        stage('Build') {
+	    steps {
+	        sh 'docker build --network=host -t docker-yarn .'
+            }
+	}
+    }
+
+    post {
+        success {
+	    sh "docker tag docker-yarn:latest registry.anthonyoteri.com/docker-yarn:latest"
+	    sh "docker push registry.anthonyoteri.com/docker-yarn:latest"
+        }
+    }
+}

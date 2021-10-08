@@ -1,2 +1,2 @@
-# docker-yarn
-Docker image for running yarn
+# docker-ansible
+Docker image for running Ansible Playbooks
