@@ -19,15 +19,16 @@ pipeline {
        
         stage('Build') {
 	    steps {
-	        sh 'docker build --network=host -t docker-yarn .'
+	        sh 'docker build -t registry.anthonyoteri.com/docker-yarn:latest -f Dockerfile .'
+            sh 'docker build -t registry.anthonyoteri.com/docker-yarn:slim -f Dockerfile.slim .'
             }
 	}
     }
 
     post {
         success {
-	    sh "docker tag docker-yarn:latest registry.anthonyoteri.com/docker-yarn:latest"
 	    sh "docker push registry.anthonyoteri.com/docker-yarn:latest"
+        sh "docker push registry.anthonyoteri.com/docker-yarn:slim"
         }
     }
 }

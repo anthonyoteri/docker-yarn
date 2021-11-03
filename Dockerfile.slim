@@ -1,0 +1,22 @@
+FROM debian:stable-slim
+
+# Install basic system requirements
+RUN apt-get update && apt-get install -y \
+    curl 
+
+# Install Latest NodeJS
+RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash - && \
+    apt-get update && \
+    apt-get install -y nodejs
+
+# Install Latest Yarn
+RUN touch $HOME/.profile && \
+    curl -fsSL https://yarnpkg.com/install.sh | bash -
+
+RUN mkdir -p /app
+     
+WORKDIR "/app"
+VOLUME ["/app"]
+
+ENV PATH=$PATH:/root/.yarn/bin/
+CMD [ "/root/.yarn/bin/yarn" ]
