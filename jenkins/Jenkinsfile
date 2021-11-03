@@ -6,6 +6,10 @@ pipeline {
         }
     }
 
+    environment {
+        DATE_TAG = java.time.LocalDate.now()
+    }
+
     options {
         ansiColor('xterm')
     }
@@ -20,6 +24,9 @@ pipeline {
             post {
                 success {
                     sh "docker push registry.anthonyoteri.com/docker-yarn:latest"
+
+                    sh "docker tag registry.anthonyoteri.com/docker-yarn:latest registry.anthonyoteri.com/docker-yarn:latest-${DATE_TAG}"
+                    sh "docker push registry.anthonyoteri.com/docker-yarn:latest-${DATE_TAG}"
                 }
             }
         }
@@ -31,6 +38,9 @@ pipeline {
             post {
                 success {
                     sh "docker push registry.anthonyoteri.com/docker-yarn:slim"
+
+                    sh "docker tag registry.anthonyoteri.com/docker-yarn:slim registry.anthonyoteri.com/docker-yarn:slim-${DATE_TAG}"
+                    sh "docker push registry.anthonyoteri.com/docker-yarn:slim-${DATE_TAG}"
                 }
             }
         }
