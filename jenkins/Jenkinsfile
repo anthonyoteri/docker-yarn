@@ -7,6 +7,7 @@ pipeline {
     }
 
     environment {
+        REPO = "registry.anthonyoteri.com"
         DATE_TAG = java.time.LocalDate.now()
     }
 
@@ -16,31 +17,48 @@ pipeline {
 
     stages {
                
-        stage('Latest') {
+        stage('Alpine') {
             steps {
-                sh 'docker build -t registry.anthonyoteri.com/docker-yarn:latest -f Dockerfile .'
+                sh 'docker build -t docker-yarn:alpine -f Dockerfile.alpine .'
             }
 
             post {
                 success {
-                    sh "docker push registry.anthonyoteri.com/docker-yarn:latest"
-
-                    sh "docker tag registry.anthonyoteri.com/docker-yarn:latest registry.anthonyoteri.com/docker-yarn:latest-${DATE_TAG}"
-                    sh "docker push registry.anthonyoteri.com/docker-yarn:latest-${DATE_TAG}"
+                    sh "docker tag docker-yarn:alpine ${REPO}/docker-yarn:alpine-${DATE_TAG}"
                 }
             }
         }
 
         stage('Slim') {
             steps {
-                sh 'docker build -t registry.anthonyoteri.com/docker-yarn:slim -f Dockerfile.slim .'
+                sh 'docker build -t docker-yarn:slim -f Dockerfile.slim .'
             }
             post {
                 success {
-                    sh "docker push registry.anthonyoteri.com/docker-yarn:slim"
+                    sh "docker tag docker-yarn:slim ${REPO}/docker-yarn:slim-${DATE_TAG}"
+                }
+            }
+        }
 
-                    sh "docker tag registry.anthonyoteri.com/docker-yarn:slim registry.anthonyoteri.com/docker-yarn:slim-${DATE_TAG}"
-                    sh "docker push registry.anthonyoteri.com/docker-yarn:slim-${DATE_TAG}"
+        stage('Tag latest') {
+            steps {
+                sh "docker tag ${REPO}/docker-yarn:slim-${DATE_TAG} ${REPO}/docker-yarn:slim"
+                sh "docker tag ${REPO}/docker-yarn:alpine-${DATE_TAG} ${REPO}/docker-yarn:alpine"
+             }
+        }
+
+        stage('Push images') {
+            steps {
+                sh "docker push ${REPO}/docker-yarn:slim-${DATE_TAG}"
+                sh "docker push ${REPO}/docker-yarn:alpine-${DATE_TAG}"
+                sh "docker push ${REPO}/docker-yarn:slim"
+                sh "docker push ${REPO}/docker-yarn:alpine"
+            }
+
+            post {
+                success {
+                    sh "docker tag ${REPO}/docker-yarn:alpine ${REPO}/docker-yarn:latest"
+                    sh "docker push ${REPO}/docker-yarn:latest"
                 }
             }
         }
