@@ -11,24 +11,28 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+               
+        stage('Latest') {
             steps {
-                git 'https://github.com/anthonyoteri/docker-yarn'
+                sh 'docker build -t registry.anthonyoteri.com/docker-yarn:latest -f Dockerfile .'
+            }
+
+            post {
+                success {
+                    sh "docker push registry.anthonyoteri.com/docker-yarn:latest"
+                }
             }
         }
-       
-        stage('Build') {
-	    steps {
-	        sh 'docker build -t registry.anthonyoteri.com/docker-yarn:latest -f Dockerfile .'
-            sh 'docker build -t registry.anthonyoteri.com/docker-yarn:slim -f Dockerfile.slim .'
-            }
-	}
-    }
 
-    post {
-        success {
-	    sh "docker push registry.anthonyoteri.com/docker-yarn:latest"
-        sh "docker push registry.anthonyoteri.com/docker-yarn:slim"
+        stage('Slim') {
+            steps {
+                sh 'docker build -t registry.anthonyoteri.com/docker-yarn:slim -f Dockerfile.slim .'
+            }
+            post {
+                success {
+                    sh "docker push registry.anthonyoteri.com/docker-yarn:slim"
+                }
+            }
         }
     }
 }
